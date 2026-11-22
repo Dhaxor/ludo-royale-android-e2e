@@ -1,0 +1,69 @@
+17:34:14 == LAUNCH
+17:34:19 PASS first launch shows onboarding
+17:34:19 == ONBOARDING
+17:34:27 PASS onboarding starts the warm-up
+17:34:27 == BOARD-3D
+17:34:45 PASS the 3D board renders in the WebView — colourful share 0.459
+17:34:45 == RESCUE
+17:36:00 FAIL idle warm-up: the hand points at Roll
+17:36:39 FAIL idle warm-up: the game makes the first roll
+17:36:39 == BACK-IN-MATCH
+17:36:41   ! 'Process system isn't responding': tapping Wait (never close Android itself)
+17:36:44   ⟵ open the leave question
+17:37:01 FAIL back in a match asks before leaving
+17:37:01   ⟵ close the question
+17:37:09 PASS back again closes the question
+17:37:09   ⟵ ask again
+17:37:18   (no confirm leave)
+17:37:36   ! 'Process system isn't responding': tapping Wait (never close Android itself)
+17:37:41 FAIL leaving the warm-up lands on Home
+17:37:44 == REWARDS-AND-REMINDERS
+17:37:47   ! 'Ludo Royale isn't responding': tapping Wait
+2026-11-22T17:37:55.450Z WARN webdriver: Request encountered a stale element - terminating request
+17:38:33   (no home tab)
+17:38:41   (no rewards tab)
+17:38:59 FAIL the Rewards tab shows the daily reward
+17:39:13   (no profile tab)
+17:39:23   (no settings)
+17:39:23 FAIL settings open
+17:39:23 == BACK-ON-HOME
+17:39:28   ! 'Ludo Royale isn't responding': tapping Wait
+17:40:42   (no home tab)
+17:40:42   ⟵ leave the app from Home
+17:40:49 FAIL back on Home leaves the app (Android default) — app state 4
+17:41:28 FAIL the game comes back on Home
+17:41:28 == SHOP-GOOGLE-PLAY
+17:42:20   (no shop tab)
+17:43:23 FAIL the shop opens
+17:45:18 FAIL the shop's small print names Google Play
+17:45:40 PASS no App Store wording in the shop
+17:47:30 FAIL a coin pack price button
+17:47:30 == ROYAL-CLUB
+17:50:05   (no Royal Club banner)
+17:50:05 FAIL Royal Club opens from the shop
+17:50:05 == BACK-NAVIGATION
+17:51:29   (no profile tab)
+17:51:45   (no settings)
+17:51:45   ⟵ leave Profile
+17:52:50 FAIL back from a tab returns to Home
+17:52:54 == SECOND-MATCH
+17:53:04   ! 'Ludo Royale isn't responding': tapping Wait
+17:53:21   (no PLAY)
+17:53:21 FAIL PLAY starts a match
+17:53:21 FAIL no 'isn't responding' dialogs — 3 seen
+17:53:21 DONE: 5/20 passed
+17:53:21   FAILED idle warm-up: the hand points at Roll
+17:53:21   FAILED idle warm-up: the game makes the first roll
+17:53:21   FAILED back in a match asks before leaving
+17:53:21   FAILED leaving the warm-up lands on Home
+17:53:21   FAILED the Rewards tab shows the daily reward
+17:53:21   FAILED settings open
+17:53:21   FAILED back on Home leaves the app (Android default) — app state 4
+17:53:21   FAILED the game comes back on Home
+17:53:21   FAILED the shop opens
+17:53:21   FAILED the shop's small print names Google Play
+17:53:21   FAILED a coin pack price button
+17:53:21   FAILED Royal Club opens from the shop
+17:53:21   FAILED back from a tab returns to Home
+17:53:21   FAILED PLAY starts a match
+17:53:21   FAILED no 'isn't responding' dialogs — 3 seen

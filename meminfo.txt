@@ -1,0 +1,40 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 1259769 Realtime: 1259769
+
+** MEMINFO in pid 5581 [com.dhaxor.ludoroyale] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    59108    59052       12       44    60400    75236    61177     9871
+  Dalvik Heap    16725    16640        8      162    17872    23883    11958    11925
+ Dalvik Other     4743     3944        0        7     5800                           
+        Stack     2340     2340        0        0     2348                           
+       Ashmem     1609      176        0        0     3660                           
+    Other dev      125       92       28        0      392                           
+     .so mmap     7376      360     3744       16    46544                           
+    .jar mmap     2707        0      348        0    38160                           
+    .apk mmap    60273     1384    40288        0    90936                           
+    .ttf mmap    10195        0    10024        0    10620                           
+    .dex mmap    13061        8    12992        0    13932                           
+    .oat mmap      932        0      104        0    15036                           
+    .art mmap     1653      860       96      171    20776                           
+   Other mmap     5723        8     4092        0     9012                           
+      Unknown    31430    31424        0        0    31768                           
+        TOTAL   218400   116288    71736      400   367256    99119    73135    21796
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    17596                          38648
+         Native Heap:    59052                          60400
+                Code:    69256                         216832
+               Stack:     2340                           2348
+            Graphics:        0                              0
+       Private Other:    39780
+              System:    30376
+             Unknown:                                   49028
+ 
+           TOTAL PSS:   218400            TOTAL RSS:   367256       TOTAL SWAP PSS:      400
+ 
+ Objects
+               Views:      106         ViewRootImpl:        1

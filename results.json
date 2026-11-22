@@ -1,0 +1,102 @@
+[
+ {
+  "name": "first launch shows onboarding",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "onboarding starts the warm-up",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "the 3D board renders in the WebView",
+  "ok": true,
+  "detail": "colourful share 0.459"
+ },
+ {
+  "name": "idle warm-up: the hand points at Roll",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "idle warm-up: the game makes the first roll",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "back in a match asks before leaving",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "back again closes the question",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "leaving the warm-up lands on Home",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "the Rewards tab shows the daily reward",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "settings open",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "back on Home leaves the app (Android default)",
+  "ok": false,
+  "detail": "app state 4"
+ },
+ {
+  "name": "the game comes back on Home",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "the shop opens",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "the shop's small print names Google Play",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "no App Store wording in the shop",
+  "ok": true,
+  "detail": ""
+ },
+ {
+  "name": "a coin pack price button",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "Royal Club opens from the shop",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "back from a tab returns to Home",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "PLAY starts a match",
+  "ok": false,
+  "detail": ""
+ },
+ {
+  "name": "no 'isn't responding' dialogs",
+  "ok": false,
+  "detail": "3 seen"
+ }
+]

@@ -1,0 +1,13 @@
+package: com.dhaxor.ludoroyale
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='android.permission.MODIFY_AUDIO_SETTINGS'
+uses-permission: name='android.permission.VIBRATE'
+uses-permission: name='com.android.vending.BILLING'
+uses-permission: name='android.permission.RECEIVE_BOOT_COMPLETED'
+uses-permission: name='android.permission.POST_NOTIFICATIONS'
+uses-permission: name='android.permission.ACCESS_NETWORK_STATE'
+uses-permission: name='android.permission.WAKE_LOCK'
+uses-permission: name='android.permission.FOREGROUND_SERVICE'
+uses-permission: name='com.google.android.c2dm.permission.RECEIVE'
+permission: com.dhaxor.ludoroyale.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission: name='com.dhaxor.ludoroyale.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'

@@ -1,0 +1,13 @@
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.MODIFY_AUDIO_SETTINGS
+      android.permission.VIBRATE
+      com.android.vending.BILLING
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.POST_NOTIFICATIONS
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.WAKE_LOCK
+      android.permission.FOREGROUND_SERVICE
+      com.google.android.c2dm.permission.RECEIVE
+      com.dhaxor.ludoroyale.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    install permissions:
