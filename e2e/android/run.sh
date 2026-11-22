@@ -8,6 +8,11 @@ adb devices
 adb shell getprop ro.build.version.release
 adb shell dumpsys webviewupdate | grep -i "current webview package" | head -3
 adb install -r app.apk
+# A cold-booted emulator is still busy (the launcher often freezes for a while):
+# let it settle on the home screen before the walkthrough starts.
+sleep 45
+adb shell input keyevent 3
+sleep 5
 adb logcat -c
 adb logcat -v time > shots/logcat.txt 2>&1 &
 LOGCAT=$!

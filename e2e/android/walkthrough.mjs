@@ -62,9 +62,12 @@ const byText = (s) => `android=new UiSelector().textContains("${s}")`;
 
 async function find(id, timeout = 8000) {
   const end = Date.now() + timeout;
+  let polls = 0;
   do {
     const els = await driver.$$(byId(id));
     if (els.length) return els[0];
+    // an "isn't responding" dialog hides the app from UiAutomator: deal with it
+    if (++polls % 6 === 0) await dismissAnr();
     await sleep(400);
   } while (Date.now() < end);
   return null;
@@ -142,10 +145,25 @@ let anrs = 0;
 async function dismissAnr() {
   const wait = await driver.$$('android=new UiSelector().resourceId("android:id/aerr_wait")').catch(() => []);
   if (!wait.length) return false;
-  anrs += 1;
-  log("  ! 'isn't responding' dialog: tapping Wait");
+  let title = "";
+  try {
+    const t = await driver.$$('android=new UiSelector().resourceId("android:id/alertTitle")');
+    if (t.length) title = await t[0].getText();
+  } catch {
+    /* no title */
+  }
   await shot("anr").catch(() => {});
-  await wait[0].click().catch(() => {});
+  if (/ludo royale/i.test(title)) {
+    // our own app froze: a real failure; let it carry on
+    anrs += 1;
+    log(`  ! '${title}': tapping Wait`);
+    await wait[0].click().catch(() => {});
+  } else {
+    // another app (often the emulator's launcher on a cold boot): close it
+    log(`  ! '${title || "another app isn't responding"}': closing that app`);
+    const close = await driver.$$('android=new UiSelector().resourceId("android:id/aerr_close")').catch(() => []);
+    await (close[0] ?? wait[0]).click().catch(() => {});
+  }
   await sleep(1500);
   return true;
 }
