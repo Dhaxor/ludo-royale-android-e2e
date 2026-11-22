@@ -1,2 +1,5 @@
-Test-only branch: the Android E2E workflow and its scripts (no app code).
-The app lives on v2-3d; its copies of these files are in e2e/android/.
+# Ludo Royale: Android E2E (test-only)
+
+The GitHub Actions workflow and scripts that install a Ludo Royale test APK
+(built by Expo EAS) on an Android emulator and walk through the game, publishing
+screenshots to the `android-e2e-results` branch. No app source lives here.

@@ -6,13 +6,14 @@ name: Android E2E walkthrough
 # log, logcat and the installed permissions publish to the
 # android-e2e-results branch.
 #
-# This file lives at .github/workflows/android-e2e.yml on the test-only
-# branch android-e2e-run (no app code there). Run it by pushing that branch
-# with e2e/android/app-url.txt holding the APK URL (`eas build:view <id>`).
+# This file lives at .github/workflows/android-e2e.yml in the public test-only
+# repo Dhaxor/ludo-royale-android-e2e (no app source there). Run it by pushing
+# main with e2e/android/app-url.txt holding the APK URL (`eas build:view <id>`).
 
 on:
   push:
-    branches: [android-e2e-run]
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
