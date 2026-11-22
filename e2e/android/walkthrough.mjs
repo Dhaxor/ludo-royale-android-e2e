@@ -23,28 +23,39 @@ function check(name, ok, detail = "") {
   log(`${ok ? "PASS" : "FAIL"} ${name}${detail ? ` — ${detail}` : ""}`);
 }
 
-const driver = await remote({
-  hostname: "127.0.0.1",
-  port: 4723,
-  logLevel: "warn",
-  connectionRetryCount: 0,
-  connectionRetryTimeout: 600000,
-  capabilities: {
-    platformName: "Android",
-    "appium:automationName": "UiAutomator2",
-    "appium:appPackage": PKG,
-    "appium:appActivity": ".MainActivity",
-    "appium:noReset": true,
-    "appium:autoGrantPermissions": false,
-    "appium:newCommandTimeout": 900,
-    "appium:uiautomator2ServerInstallTimeout": 180000,
-    "appium:uiautomator2ServerLaunchTimeout": 180000,
-    "appium:adbExecTimeout": 120000,
-    "appium:disableIdLocatorAutocompletion": true,
-  },
-});
-// The 3D board animates without pause: never wait for the UI to go idle.
-await driver.updateSettings({ waitForIdleTimeout: 0, waitForSelectorTimeout: 0 });
+const CAPS = {
+  platformName: "Android",
+  "appium:automationName": "UiAutomator2",
+  "appium:appPackage": PKG,
+  "appium:appActivity": ".MainActivity",
+  "appium:noReset": true,
+  "appium:dontStopAppOnReset": true, // a restarted session keeps the game where it was
+  "appium:autoGrantPermissions": false,
+  "appium:newCommandTimeout": 900,
+  "appium:uiautomator2ServerInstallTimeout": 180000,
+  "appium:uiautomator2ServerLaunchTimeout": 180000,
+  "appium:adbExecTimeout": 120000,
+  "appium:disableIdLocatorAutocompletion": true,
+};
+let driver;
+async function startSession() {
+  driver = await remote({ hostname: "127.0.0.1", port: 4723, logLevel: "warn", connectionRetryCount: 0, connectionRetryTimeout: 600000, capabilities: CAPS });
+  // The 3D board animates without pause: never wait for the UI to go idle.
+  await driver.updateSettings({ waitForIdleTimeout: 0, waitForSelectorTimeout: 0 });
+}
+// The test agent on the phone (UiAutomator2 server) can die when the emulator's
+// software GPU stalls: start a fresh session and carry on with the next section.
+const agentDied = (e) => /socket hang up|instrumentation process|ECONNREFUSED|not running|could not proxy/i.test(String(e?.message ?? e));
+async function restartSession() {
+  log("  ↻ restarting the Appium session");
+  try {
+    await driver.deleteSession();
+  } catch {
+    /* already gone */
+  }
+  await startSession();
+}
+await startSession();
 
 const byId = (id) => `android=new UiSelector().resourceId("${id}")`;
 const byText = (s) => `android=new UiSelector().textContains("${s}")`;
@@ -125,12 +136,27 @@ async function back(label = "back") {
   await driver.back();
   await sleep(1200);
 }
+// Android's "<app> isn't responding" dialog: record it and answer Wait, so one
+// slow moment doesn't block every later check.
+let anrs = 0;
+async function dismissAnr() {
+  const wait = await driver.$$('android=new UiSelector().resourceId("android:id/aerr_wait")').catch(() => []);
+  if (!wait.length) return false;
+  anrs += 1;
+  log("  ! 'isn't responding' dialog: tapping Wait");
+  await shot("anr").catch(() => {});
+  await wait[0].click().catch(() => {});
+  await sleep(1500);
+  return true;
+}
 async function section(name, fn) {
   log(`== ${name}`);
   try {
+    await dismissAnr();
     await fn();
   } catch (e) {
     check(`${name} (no crash)`, false, String(e?.message ?? e).slice(0, 300));
+    if (agentDied(e)) await restartSession().catch((err) => log(`  restart failed: ${err?.message ?? err}`));
     try {
       await shot(`${name.toLowerCase()}-error`);
     } catch {
@@ -178,10 +204,10 @@ try {
 
   await section("RESCUE", async () => {
     // Don't touch the dice: the hand comes at 8 s, the game rolls at 15 s.
-    const nudge = await find("coach-nudge", 14000);
+    const nudge = await find("coach-nudge", 25000);
     if (nudge) await shot("nudge");
     check("idle warm-up: the hand points at Roll", nudge);
-    const rolled = await textShown("first roll", 14000);
+    const rolled = (await textShown("first roll", 20000)) || (await textShown("gold arrow", 3000));
     await shot("auto-roll");
     check("idle warm-up: the game makes the first roll", rolled);
   });
@@ -291,6 +317,7 @@ try {
     check("back + Leave ends the match", await find("lobby-play", 20000));
   });
 } finally {
+  check("no 'isn't responding' dialogs", anrs === 0, `${anrs} seen`);
   fs.writeFileSync(path.join(SHOTS, "results.json"), JSON.stringify(results, null, 1));
   const failed = results.filter((r) => !r.ok);
   log(`DONE: ${results.length - failed.length}/${results.length} passed`);

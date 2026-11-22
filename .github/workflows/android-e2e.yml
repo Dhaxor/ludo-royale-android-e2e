@@ -1,7 +1,9 @@
 name: Android E2E walkthrough
 
-# Installs an EAS Android build (eas.json profile "e2e": an APK) on an Android
-# 14 emulator and drives the first-user journey with Appium/UiAutomator2
+# Installs an EAS Android build (eas.json profile "e2e-staging": an APK on the
+# staging server, so test runs never touch the real counts) on an Android 14
+# emulator (3 GB, so the game starts on Low graphics like most Android
+# phones) and drives the first-user journey with Appium/UiAutomator2
 # (e2e/android/walkthrough.mjs). Screenshots, results.json, the walkthrough
 # log, logcat and the installed permissions publish to the
 # android-e2e-results branch.
@@ -45,6 +47,7 @@ jobs:
           BT=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)
           "$ANDROID_HOME/build-tools/$BT/aapt2" dump badging app.apk > shots/apk-badging.txt || true
           "$ANDROID_HOME/build-tools/$BT/aapt2" dump permissions app.apk > shots/apk-permissions.txt || true
+          "$ANDROID_HOME/build-tools/$BT/aapt2" dump xmltree --file AndroidManifest.xml app.apk > shots/apk-manifest.txt || true
           npm install -g appium@latest
           appium driver install uiautomator2
           cd e2e/android && npm install --no-audit --no-fund
@@ -57,7 +60,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          ram-size: 4096M
+          ram-size: 3072M
           disk-size: 6000M
           emulator-boot-timeout: 900
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
