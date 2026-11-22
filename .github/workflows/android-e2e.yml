@@ -3,7 +3,8 @@ name: Android E2E walkthrough
 # Installs an EAS Android build (eas.json profile "e2e-staging": an APK on the
 # staging server, so test runs never touch the real counts) on an Android 14
 # emulator (3 GB, so the game starts on Low graphics like most Android
-# phones) and drives the first-user journey with Appium/UiAutomator2
+# phones; a 768x1280 screen, because the emulator composites the screen in
+# software and hung at 1080x2400) and drives the first-user journey with Appium/UiAutomator2
 # (e2e/android/walkthrough.mjs). Screenshots, results.json, the walkthrough
 # log, logcat and the installed permissions publish to the
 # android-e2e-results branch.
@@ -59,12 +60,12 @@ jobs:
           api-level: 34
           target: google_apis
           arch: x86_64
-          profile: pixel_6
+          profile: Nexus 4
           ram-size: 3072M
           disk-size: 6000M
           emulator-boot-timeout: 900
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
+          disable-animations: true
           script: bash e2e/android/run.sh
 
       - name: Publish results

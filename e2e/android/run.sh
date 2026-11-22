@@ -16,7 +16,7 @@ sleep 5
 adb logcat -c
 adb logcat -v time > shots/logcat.txt 2>&1 &
 LOGCAT=$!
-appium --log shots/appium.log --log-level info > /dev/null 2>&1 &
+appium --relaxed-security --log shots/appium.log --log-level info > /dev/null 2>&1 &
 APPIUM=$!
 for i in $(seq 1 30); do curl -s http://127.0.0.1:4723/status | grep -q ready && break; sleep 2; done
 node e2e/android/walkthrough.mjs 2>&1 | tee shots/walkthrough.log

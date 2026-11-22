@@ -158,6 +158,10 @@ async function dismissAnr() {
     anrs += 1;
     log(`  ! '${title}': tapping Wait`);
     await wait[0].click().catch(() => {});
+  } else if (/system/i.test(title)) {
+    // Android itself (System UI, "Process system"): closing it restarts the phone
+    log(`  ! '${title}': tapping Wait (never close Android itself)`);
+    await wait[0].click().catch(() => {});
   } else {
     // another app (often the emulator's launcher on a cold boot): close it
     log(`  ! '${title || "another app isn't responding"}': closing that app`);
@@ -244,27 +248,31 @@ try {
     await shot("home");
   });
 
-  await section("DAILY-AND-REMINDERS", async () => {
-    const sheet = await find("daily-sheet", 10000);
-    check("the daily reward sheet pops up on Home", sheet);
-    if (!sheet) return;
-    await shot("daily-sheet");
-    await tap("daily-claim", "claim");
-    await sleep(1500);
-    await shot("daily-claimed");
-    if (await tap("daily-remind", "remind me", 4000)) {
-      const allow = await driver.$$('android=new UiSelector().resourceId("com.android.permissioncontroller:id/permission_allow_button")');
+  // (The daily sheet itself only pops up after a finished match; leaving the
+  // warm-up early doesn't count, so check the reward on the Rewards tab.)
+  await section("REWARDS-AND-REMINDERS", async () => {
+    if (!(await exists("lobby-play", 4000))) await tap("tab-home", "home tab");
+    await tap("tab-rewards", "rewards tab");
+    check("the Rewards tab shows the daily reward", await find("rewards-daily", 10000));
+    await shot("rewards");
+    await tap("tab-profile", "profile tab");
+    if (!(await tap("profile-settings", "settings", 8000))) return check("settings open", false);
+    if (!(await tap("settings-reminders", "reminders switch", 8000))) return check("the reminders switch", false);
+    let allow = [];
+    for (let i = 0; i < 8 && !allow.length; i++) {
+      await sleep(800);
+      allow = await driver.$$('android=new UiSelector().resourceId("com.android.permissioncontroller:id/permission_allow_button")');
+    }
+    await shot("notification-prompt");
+    check("turning reminders on shows Android's notification prompt", allow.length > 0);
+    if (allow.length) {
+      await allow[0].click();
       await sleep(1500);
-      const dialog = allow.length ? allow : await driver.$$('android=new UiSelector().resourceId("com.android.permissioncontroller:id/permission_allow_button")');
-      await shot("notification-prompt");
-      check("Remind me shows Android's notification prompt", dialog.length > 0);
-      if (dialog.length) {
-        await dialog[0].click();
-        await sleep(1200);
-      }
-    } else check("Remind me button on the daily sheet", false);
-    if (!(await tap("daily-done", "done", 3000))) await tap("daily-close", "close", 3000);
-    await gone("daily-sheet", 4000);
+      const perms = await driver.execute("mobile: shell", { command: "dumpsys", args: ["package", "com.dhaxor.ludoroyale"] }).catch(() => "");
+      check("notifications are allowed after the prompt", /POST_NOTIFICATIONS: granted=true/.test(String(perms)));
+    }
+    await back("leave settings");
+    await back("leave Profile");
   });
 
   await section("BACK-ON-HOME", async () => {
@@ -287,6 +295,11 @@ try {
     check("no App Store wording in the shop", !app);
     // The emulator has no Play Store app, so billing can't connect.
     await driver.$(`android=new UiScrollable(new UiSelector().scrollable(true)).scrollToBeginning(10)`).catch(() => {});
+    try {
+      await driver.$('android=new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().resourceId("buy-coins-1"))');
+    } catch {
+      /* not found */
+    }
     const buy = (await find("buy-coins-1", 3000)) ? "buy-coins-1" : null;
     if (buy) {
       await tap(buy, "buy a coin pack");
@@ -301,8 +314,8 @@ try {
     if (!(await tap("shop-club", "Royal Club banner", 6000))) return check("Royal Club opens from the shop", false);
     const terms = await find("club-terms", 10000);
     await shot("royal-club");
-    const play = terms ? await textShown("Google Play account", 3000) : false;
-    check("Royal Club terms name Google Play", play);
+    const termsText = terms ? await terms.getText().catch(() => "") : "";
+    check("Royal Club terms name Google Play", /Google Play/.test(termsText) && !/Apple|App Store/.test(termsText), termsText.slice(0, 90));
     check("Royal Club links Terms of Use (not Apple's EULA)", await textShown("Terms of Use", 3000) && !(await textShown("EULA", 1000)));
     await back("leave the Royal Club");
     check("back from the Royal Club returns to the shop", await find("shop-coins", 8000));
@@ -326,6 +339,11 @@ try {
     check("PLAY starts a match", board);
     await sleep(6000);
     await shot("match-2");
+    // a player who left the warm-up early gets the how-to-play: Back closes it like Skip
+    if (await exists("tutorial-skip", 6000)) {
+      await back("close the how-to-play");
+      check("back closes the how-to-play", await gone("tutorial-skip", 6000));
+    }
     if (await tap("game-roll", "roll", 15000)) {
       await sleep(3000);
       await shot("match-2-rolled");
