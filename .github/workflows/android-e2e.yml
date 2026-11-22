@@ -1,0 +1,77 @@
+name: Android E2E walkthrough
+
+# Installs an EAS Android build (eas.json profile "e2e": an APK) on an Android
+# 14 emulator and drives the first-user journey with Appium/UiAutomator2
+# (e2e/android/walkthrough.mjs). Screenshots, results.json, the walkthrough
+# log, logcat and the installed permissions publish to the
+# android-e2e-results branch.
+#
+# This file lives at .github/workflows/android-e2e.yml on the test-only
+# branch android-e2e-run (no app code there). Run it by pushing that branch
+# with e2e/android/app-url.txt holding the APK URL (`eas build:view <id>`).
+
+on:
+  push:
+    branches: [android-e2e-run]
+
+permissions:
+  contents: write
+
+jobs:
+  walkthrough:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: App and test tools
+        run: |
+          mkdir -p shots
+          curl -fsSL "$(tr -d '\r\n' < e2e/android/app-url.txt)" -o app.apk
+          ls -la app.apk
+          BT=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)
+          "$ANDROID_HOME/build-tools/$BT/aapt2" dump badging app.apk > shots/apk-badging.txt || true
+          "$ANDROID_HOME/build-tools/$BT/aapt2" dump permissions app.apk > shots/apk-permissions.txt || true
+          npm install -g appium@latest
+          appium driver install uiautomator2
+          cd e2e/android && npm install --no-audit --no-fund
+
+      - name: Emulator walkthrough
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disk-size: 6000M
+          emulator-boot-timeout: 900
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: bash e2e/android/run.sh
+
+      - name: Publish results
+        if: always()
+        run: |
+          cd "$RUNNER_TEMP"
+          rm -rf pub && mkdir pub && cd pub
+          git init -q
+          git checkout -q --orphan android-e2e-results
+          cp -r "$GITHUB_WORKSPACE/shots/." .
+          echo "run ${GITHUB_RUN_ID} · $(date -u +%FT%TZ) · $(tr -d '\r\n' < "$GITHUB_WORKSPACE/e2e/android/app-url.txt")" > RUN.txt
+          git add -A
+          git -c user.name=e2e -c user.email=e2e@users.noreply.github.com commit -qm "Android E2E results ${GITHUB_RUN_ID}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:android-e2e-results
